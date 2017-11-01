@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <time.h>
 #include <errno.h>
+#include <string.h>
+#include <stdlib.h>
 
 void get_info(char * file_name) {
   struct stat file;
@@ -14,12 +16,13 @@ void get_info(char * file_name) {
   }
 }
 
-void better_size(off_t size) {
+char* better_size(off_t size) {
 	float more_info = (float)size;
+	char *out = malloc(30*sizeof(char));
 	
 	if (size < 1024) {
-		printf("B: %lu\n", size);
-		return;
+		sprintf(out, "B: %lu", size);
+		return out;
 	}
 	
 	char counter = 0;
@@ -28,31 +31,36 @@ void better_size(off_t size) {
 		more_info /= 1024;
 	}
 	
-	printf("counter: %d\n", counter);
 	switch(counter) {
 		case 0:
-			printf("B: %f\n", more_info);
+			sprintf(out, "B: %f", more_info);
 		break;
 		
 		case 1:
-			printf("KB: %f\n", more_info);
+			sprintf(out, "KB: %f", more_info);
 		break;
 
 		case 2:
-			printf("MB: %f\n", more_info);
+			sprintf(out, "MB: %f", more_info);
 		break;
 	
 		case 3:
-			printf("GB: %f\n", more_info);
+			sprintf(out, "GB: %f", more_info);
 		break;
 	}
+	
+	return out;
 }
 
 int main() {
         get_info("main.c");
+	
 	struct stat sb;
-	stat("a.out", &sb);
-	better_size(sb.st_size);
+	stat("main.c", &sb);
+	printf("better size of main.c: %s\n", better_size(sb.st_size));
+	
+	stat("stat", &sb);
+	printf("better size of exec: %s\n", better_size(sb.st_size));
 
 	return 0;
 }
